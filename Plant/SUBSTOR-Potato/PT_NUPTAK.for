@@ -78,6 +78,7 @@ C=======================================================================
 !***********************************************************************
       IF (DYNAMIC .EQ. SEASINIT) THEN
 !-----------------------------------------------------------------------
+      !HBD: de-hardwire (species) - check meaning in model description
       TUBMNC  = 0.007
       TUBSINK = 0.0   !from PHASEI
       WTNUP   = 0.0   !Seasonal total N uptake (kg[N]/ha)
@@ -107,7 +108,7 @@ C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
 C   Calculate potential N supply in soil layers with roots (TRNU)
 C-----------------------------------------------------------------------
-
+      !HBD: de-hardwire (species) - check equivalents in CSM
       DO L = 1, NLAYR
          IF (RLV(L) .NE. 0.0) THEN
             L1 = L
@@ -216,6 +217,7 @@ C-----------------------------------------------------------------------
               !
               ! STOPSN allows for dilution of haulm N
               !
+              !HBD: de-hardwire (species)
               STOPSN = AMIN1 (0.05*TOPWT*(TANC - TMNC), 
      +                 (TNDEM+RNDEM)-AVAILN)
               IF ((AVAILN + STOPSN) .GE. (TNDEM + RNDEM)) THEN

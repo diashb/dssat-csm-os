@@ -31,6 +31,7 @@ C=======================================================================
       !
       ! Calculation of critical and minimum N concentrations
       !
+      !HBD: de-hardwire (species or ecotype)
       IF (ISTAGE .EQ. 1) THEN                    !Calculate TCNP, TMNC
          TCNP = (4.5 - 0.5*(XSTAGE - 1.0))/100.0 !ISTAGE=1 (vegetative)
          TMNC = TCNP - 0.02

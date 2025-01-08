@@ -504,13 +504,15 @@ C        Branch to menu choice
 !=======================================================================
 !     Potato
       CASE ('PTSUB')
-        WRITE (*,5700) G2,G3,PD,P2,TC
+        WRITE (*,5700) G2,G3,PD,P2,TC,LALWR,TMLAI
 5700    FORMAT (12X,'0. End of changes ',//,
      2  12X,'1. G2 (Leaf expansion rate (cm²/m²/d))..........[',F7.1,/,
      3  12X,'2. G3 (Tuber growth rate (g/m²/d))..............[',F7.1,/,
      4  12X,'3. PD (Determinancy)............................[',F7.1,/,
      5  12X,'4. P2 (Photoperiod sensitivity (dimensionless)).[',F7.2,/,
-     6  12X,'5. TC (Critical temperature (˚C)................[',F7.1,/)
+     6  12X,'5. TC (Critical temperature (˚C)................[',F7.1,/,
+     9  12X,'6. LALWR (leaf area:leaf wt. ratio (cm2/g))......[',F7.1,/,
+     8  12X,'7. TMLAI (relative LAImax to trigger maturity.....[',F7.2,/)
 
          WRITE (*,5100)
 C
@@ -527,6 +529,8 @@ C        Branch to menu choice
          CASE(3);  CALL GETREAL (PD,'PD   ',0.0,3000.0)
          CASE(4);  CALL GETREAL (P2,'P2   ',0.0,3000.0)
          CASE(5);  CALL GETREAL (TC,'TC   ',0.0,3000.0)
+         CASE(6);  CALL GETREAL (LALWR,'LALWR   ',0.0,3000.0)
+         CASE(7);  CALL GETREAL (TMLAI,'TMLAI   ',0.0,3000.0)
          END SELECT
 
 !=======================================================================

@@ -53,7 +53,7 @@ C-----------------------------------------------------------------------
       INTEGER STGDOY(20)
 
       REAL AGEFAC, ARVCHO, BIOMAS, CANNAA, CANWAA
-      REAL BWRATIO, RUE1, RUE2
+      REAL BWRATIO, RUE1, RUE2, KCAN
       REAL CARBO, CNSD1, CNSD2, CO2
       REAL CUMDTT, DEVEFF, DDEADLF, DEADLF, DEADLN, DTT, ETGT
       REAL G2, G3, GRAINN, GRF, GROLF, GROPLNT, GRORT
@@ -81,7 +81,8 @@ C-----------------------------------------------------------------------
      &    NH4, NO3, RLV, SAT, SW, UNO3, UNH4  
 
 !      DATA  LALWR, SLAN /270.,0./
-      DATA  LALWR /270./      !leaf area:leaf wt. ratio (cm2/g)
+!      DATA  LALWR /270./      !leaf area:leaf wt. ratio (cm2/g)
+!      HBD (Jan 2025): de-hardwire (eco or cul); DONE
      
 !***********************************************************************
 !***********************************************************************
@@ -92,7 +93,8 @@ C-----------------------------------------------------------------------
       CALL PT_IPGRO(
      &    FILEIO,                                         !Input
      &    CO2X, CO2Y, G2, G3, PD, PLME, PLTPOP,           !Output
-     &    SDWTPL, RUE1, RUE2, SENSF, SENST)               !Output
+     &    SDWTPL, RUE1, RUE2, SENSF, SENST,               !Output
+     &    KCAN, LALWR)                                    !Output
 
       IF (PLME .EQ. 'B') THEN
         !Bed width ratio = Bed width / Row Spacing
@@ -106,6 +108,7 @@ C-----------------------------------------------------------------------
       FIRST = .TRUE.
 
 !     From INPLNT
+      !HBD: de-hardwire (these commented) - check meaning in model description
       AGEFAC = 1.0
       BIOMAS = 0.0
       CANNAA = 0.0
@@ -146,6 +149,7 @@ C-----------------------------------------------------------------------
       ! for growth.
       !
       SEEDRV = SDWTPL/(PLTPOP * 10.0)          ! convert kg/ha to g/plt
+      !HBD: de-hardwire (species)
       SEEDRV = SEEDRV*0.8
 
 !-----------------------------------------------------------------------
@@ -204,6 +208,7 @@ C-----------------------------------------------------------------------
         IF (PLME .EQ. 'B') THEN               !WM
           XLAI    = XLAI * BWRATIO            !WM
         ENDIF                                 !WM
+        !HBD: de-hardwire (species) - initializations
         LFWT    = 0.093                
         PLA     = 25.0        !cm2/plant             
         STMWT   = LFWT                 
@@ -211,7 +216,7 @@ C-----------------------------------------------------------------------
         IF (ISWNIT .EQ. 'Y') THEN
           RANC  = 0.015
           TANC  = 0.045
-          TUBN  = 0.0
+          TUBN  = 0.0 !HBD: initilized twice (see below)
           ROOTN = RANC * RTWT
           TOPSN = TOPWT * TANC
           SEEDN = (RANC * RTWT) + (TOPWT * TANC)
@@ -228,7 +233,7 @@ C-----------------------------------------------------------------------
      &    ISTAGE, TANC, XSTAGE,                           !Input
      &    AGEFAC, CNSD1, CNSD2, NFAC, NSTRES,             !Output
      &    RCNP, TCNP, TMNC)                               !Output
-
+        !HBD: de-hardwire (species) - check meaning in model description
          TUBCNP = 0.014
 !         TUBMNC = 0.007      !moved to PT_NUPTAK
        ELSE
@@ -238,6 +243,7 @@ C-----------------------------------------------------------------------
       END IF   
 
       TEMPM = (TMAX + TMIN)/2.0         ! Mean temp. calculation
+      !HBD: de-hardwire (species) - check meaning in people who changed the code
       !PRFT  = 1.2 - 0.0035*(TEMPM - 22.5)**2 !original funtion
 !      --------Begin----effect of Tmean on PRFT, modified by RR 02/15/2016
       IF (TEMPM .LE. 14) THEN
@@ -268,6 +274,7 @@ C-----------------------------------------------------------------------
      &           *(1./NFAC)
       END SELECT
 
+      !HBD: de-hardwire (species) - check meaning in the code
       IF (ISTAGE .EQ. 2) THEN              ! Senescence from stress
          SLFW = 0.95 + 0.05*TURFAC         ! ...Water stress
 C        SLFN = 0.95 + 0.05*AGEFAC         ! ...Nitrogen stress
@@ -303,7 +310,7 @@ C        SLFN = 0.95 + 0.05*AGEFAC         ! ...Nitrogen stress
          SLFT = MAX(SLFT_TMIN, SLFT_TMAX) !changed to MIN RR
          SLFT = MIN(SLFT_TMIN, SLFT_TMAX)
          SLFT = MAX (SLFT, 0.0)
-!        20230-07-28 HBD, FO - Protection for SLFT not kill the canopy.
+!        2023-07-28 HBD, FO - Protection for SLFT not kill the canopy.
 !         IF (TMIN <= 0.0) SLFT = 0.0
 
          PLAS = PLA*(1.0 - AMIN1(SLFW,SLFC,SLFT,SLFN))
@@ -354,13 +361,16 @@ C        SLFN = 0.95 + 0.05*AGEFAC         ! ...Nitrogen stress
 
 !       Potential carbon fixation
       PT_PAR = SRAD*0.5               ! PAR = SRAD*.02092
+!      HBD (Jan 2025): de-hardwire (ECO); DONE
       IF (ISTAGE .LT. 2) THEN
          !PCARB = 3.5*PT_PAR/PLTPOP*(1.0 - EXP(-0.55*XLAI))    !CHP
-         PCARB = RUE1*PT_PAR/PLTPOP*(1.0 - EXP(-0.55*XLAI))    !CHP
+         !PCARB = RUE1*PT_PAR/PLTPOP*(1.0 - EXP(-0.55*XLAI))    !CHP
+         PCARB = RUE1*PT_PAR/PLTPOP*(1.0 - EXP(-KCAN*XLAI))    !HBD (Jan 2025) 
        ELSE
 !        PCARB = 4.0*PT_PAR/PLTPOP*(1.0 - EXP(-0.55*XLAI))    !CHP
 !        PCARB = RUE2*TX_RUE*PT_PAR/PLTPOP*(1.0 - EXP(-0.55*XLAI))    !CHP
-         PCARB = RUE2*PT_PAR/PLTPOP*(1.0 - EXP(-0.55*XLAI))    !CHP
+!        PCARB = RUE2*PT_PAR/PLTPOP*(1.0 - EXP(-0.55*XLAI))    !CHP
+         PCARB = RUE2*PT_PAR/PLTPOP*(1.0 - EXP(-KCAN*XLAI))    !HBD (Jan 2025)
       END IF
 
       IF (PLME .EQ. 'B') THEN                 !WM
@@ -374,6 +384,7 @@ C        SLFN = 0.95 + 0.05*AGEFAC         ! ...Nitrogen stress
       PCARB  = PCARB*PCO2*PRFT
 !     Modified by RR 02/15/2016
 !     CARBO  = PCARB*AMIN1(PRFT, SWFAC, NSTRES)*SLPF + 0.5*DDEADLF ! original function 02/15/2016
+      !HBD: de-hardwire (eco or species)
       CARBO  = PCARB*AMIN1(SWFAC, NSTRES)*SLPF + 0.5*DDEADLF 
       
       RVCUSD = 0.0                                   ! Reserve C used
@@ -392,6 +403,7 @@ C        SLFN = 0.95 + 0.05*AGEFAC         ! ...Nitrogen stress
           !
           GROTUB = 0.0
           PGRTUB = 0.0
+          !HBD: de-hardwire (eco or species)
           RLGR   = 0.50*DTT             ! From Ingram & McCloud (1984)
           PLAG   = EXP(RLGR)*PLA - PLA
           PLAG   = PLAG*AMIN1 (TURFAC, AGEFAC, 1.0)
@@ -414,6 +426,7 @@ C        SLFN = 0.95 + 0.05*AGEFAC         ! ...Nitrogen stress
           ! PLA=400, as in Ng and Loomis
           !
           IF (PLA .LT. 100.0) THEN
+          !HBD: de-hardwire (species)
              SEEDAV = 1.5*STT
              RVCHO  = 0.0
            ELSEIF (PLA .GE. 100.0 .AND. PLA .LE. 400.0) THEN
@@ -451,6 +464,7 @@ C        SLFN = 0.95 + 0.05*AGEFAC         ! ...Nitrogen stress
               !       of haulm weight
            ELSE
               RVCUSD = 0.0
+              !HBD: de-hardwire (species)
               IF (PLA .GT. 400.0) THEN
                   RVCMAX = 0.1*(LFWT+GROLF+STMWT+GROSTM)
                   RVCHO  = RVCHO + CARBO - GROPLNT
@@ -486,6 +500,7 @@ C        SLFN = 0.95 + 0.05*AGEFAC         ! ...Nitrogen stress
           TIND = AMAX1 (TIND,0.0)
           TIND = AMIN1 (TIND,1.0)
 
+          !HBD: de-hardwire (species)
           IF (TEMPM .GT. 2.0 .AND. TEMPM .LT. 15.0) THEN
              ETGT = 0.0769*(TEMPM-2.0)
            ELSEIF (TEMPM .GE. 15.0 .AND. TEMPM .LE. 23.0) THEN
@@ -514,6 +529,7 @@ C        SLFN = 0.95 + 0.05*AGEFAC         ! ...Nitrogen stress
           ENDIF                                       !WM
           PLAG    = PLAG  *AMIN1 (TURFAC, AGEFAC, 1.0)
           GROLF   = PLAG/LALWR
+          !HBD: de-hardwire (species)
           GROSTM  = GROLF*0.75
           RTPAR   = 0.2
           GRORT   = (GROLF + GROSTM)* RTPAR
@@ -540,6 +556,7 @@ C        SLFN = 0.95 + 0.05*AGEFAC         ! ...Nitrogen stress
                   RVCHO  = CARBO  - GROPLNT
                   IF (RVCHO .GT. RVCAV) THEN
                      RVCUSD = 0.0
+                     !HBD: de-hardwire (species)
                      RVCMAX = 0.1*(LFWT+GROLF+STMWT+GROSTM)
                      RVCHO  = AMIN1 (RVCHO,RVCMAX)
                    ELSE
@@ -595,12 +612,14 @@ C        SLFN = 0.95 + 0.05*AGEFAC         ! ...Nitrogen stress
 ! thus, GROLF = GROTOP * (1/1.75) 
 ! was...   GROLF   = GROTOP * 0.50 
 ! should be: 
+          !HBD: de-hardwire (species)
           GROLF   = GROTOP * (1/1.75) 
           GROSTM  = GROLF  * 0.75                    ! Added 0.75 (WTB) 
           GROPLNT = GROLF  + GROSTM + GRORT 
 !-----------------------------------------------------------------------
 
           IF (ARVCHO .GT. 0.) THEN
+             !HBD: de-hardwire (species)
              IF (PLA .LE. 400.) THEN
                 SEEDRV = SEEDRV + AMIN1(ARVCHO,RVCUSD)
               ELSE
@@ -617,6 +636,7 @@ C        SLFN = 0.95 + 0.05*AGEFAC         ! ...Nitrogen stress
       !
       LFWT   = LFWT  + GROLF
       STMWT  = STMWT + GROSTM
+      !HBD: de-hardwire (species)
       RTWT   = RTWT  + 0.8*GRORT
       TOPWT  = LFWT  + STMWT
       TUBWT  = TUBWT + GROTUB
@@ -628,6 +648,7 @@ C        SLFN = 0.95 + 0.05*AGEFAC         ! ...Nitrogen stress
       STOVN  = TOPSN
 
       IF (GROTOP .LT. 0.0) THEN
+         !HBD: de-hardwire (eco species)
          DEADLF = DEADLF - GROTOP*0.5
       END IF
 
@@ -695,7 +716,8 @@ C=======================================================================
       SUBROUTINE PT_IPGRO(
      &    FILEIO,                                         !Input
      &    CO2X, CO2Y, G2, G3, PD, PLME, PLTPOP,           !Output
-     &    SDWTPL, RUE1, RUE2, SENSF, SENST)               !Output
+     &    SDWTPL, RUE1, RUE2, SENSF, SENST,               !Output
+     &    KCAN, LALWR)                                    !Output
 
 !     ------------------------------------------------------------------
       USE ModuleDefs     !Definitions of constructed variable types, 
@@ -723,6 +745,7 @@ C=======================================================================
       INTEGER ERR, FOUND, I, J, LINC, LNUM, PATHL, ISECT
 
       REAL G2, G3, PD, PLTPOP, SDWTPL, RUE1, RUE2
+      REAL LALWR, KCAN
       REAL, DIMENSION(4) :: SENST, SENSF
       REAL CO2X(10), CO2Y(10)
       
@@ -769,8 +792,8 @@ C     Read crop genetic information
         CALL ERROR(SECTION, 42, FILEIO, LNUM)
       ELSE
         IF (INDEX ('PT',CROP) .GT. 0) THEN
-          READ (LUNIO,'(24X,A6,1X,3F6.0)',IOSTAT=ERR) 
-     &          ECONO, G2, G3, PD
+          READ (LUNIO,'(24X,A6,1X,3F6.0,12X,1F6.0)',IOSTAT=ERR) 
+     &          ECONO, G2, G3, PD, LALWR
           LNUM = LNUM + 1
           IF (ERR .NE. 0) CALL ERROR(ERRKEY,ERR,FILEIO,LNUM)
         ENDIF
@@ -852,7 +875,7 @@ C-----------------------------------------------------------------------
 3100        FORMAT (A6,1X,A16)
             IF (ERR .NE. 0) CALL ERROR(ERRKEY,ERR,FILEE,LNUM)
             IF (ECOTYP .EQ. ECONO) THEN
-              READ(C255(26:37),'(F5.0, 1X, F5.0)',IOSTAT=ERR) RUE1, RUE2
+              READ(C255(26:43),'(F5.0, 1X, F5.0, 1X, F5.0)',IOSTAT=ERR) RUE1, RUE2, KCAN
               IF (ERR .NE. 0) CALL ERROR(ERRKEY,ERR,FILEE,LNUM)
               EXIT
             ENDIF

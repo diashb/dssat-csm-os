@@ -134,6 +134,8 @@ C=======================================================================
       CANHT  = 0.0
 
       CALL PT_IPSPE(FILEIO, RWUEP1, PORMIN, RWUMX)
+!     &    VGCT, SGCT,
+!     &    VTBA, VTO1, VTO2, VTMA, STBA, STO1, STO2, STMA, TITB, TITO)
 !      RWUEP1 = 1.5
 !      PORMIN = 0.02                              ! Minimum pore space
 !      RWUMX  = 0.09                              ! Max root water uptake
@@ -401,7 +403,6 @@ C-----------------------------------------------------------------------
         IF (ISECT .EQ. 0) EXIT
         IF (ISECT .EQ. 2) CYCLE
         C4 = CHAR(10:13)
-
         SELECT CASE(C4)
           CASE('RWEP'); READ(CHAR,'(14X,F6.0)',IOSTAT=ERR) RWUEP1
           CASE('PORM'); READ(CHAR,'(14X,F6.0)',IOSTAT=ERR) PORMIN
@@ -409,7 +410,7 @@ C-----------------------------------------------------------------------
         END SELECT
         IF (ERR .NE. 0) CALL ERROR(ERRKEY,ERR,FILEC,LNUM)
       END DO
-
+      
       CLOSE (LUNCRP)
 
 C-----------------------------------------------------------------------

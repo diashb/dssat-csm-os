@@ -99,6 +99,7 @@ C=======================================================================
 !       RTDEPI = SDEPTH  
         RTDEPI = MIN(20.0,DS(NLAYR))     !CHP per JWJ                 
         RTDEP = RTDEPI
+        !HBD: de-hardwire (management?)
 
 !       RLWR 1E4 cm/g
         RLINIT = GRORT * RLWR * PLTPOP 
@@ -130,6 +131,7 @@ C=======================================================================
         CUMDEP = 0.0
         RNFAC  = 1.0
 
+        !HBD: de-hardwire (species?) - not sure what is the meaning
         DO L = 1, NLAYR
            L1     = L
            ESW(L) = DUL(L) - LL(L)
@@ -158,6 +160,7 @@ C=======================================================================
         END DO
 
 !-------------------------------------------------------------------------
+        !HBD: de-hardwire (species) - is it needed to be limited to 5?
         IF (TRLDF .GE. RLNEW*0.00001) THEN
            RNLF = RLNEW/TRLDF
            DO L = 1, L1

@@ -46,6 +46,10 @@ C=======================================================================
       REAL SEEDRV, SENLA, SPGROF, SPRLAP, SPRLTH, SPRWT, SWSD
       REAL TC, TCPLUS, TEMP, TII, TMAX, TMIN, TOPSN, TOTNUP, TSPRWT
       REAL XDEPTH, XDTT, XPLANT, XSTAGE
+      
+      CHARACTER*3 VGCT, SGCT
+      REAL VTBA, VTO1, VTO2, VTMA, STBA, STO1, STO2, STMA
+      REAL TMLAI
 
       REAL, DIMENSION(NL) :: DLAYR, LL, ST, SW
 
@@ -57,7 +61,12 @@ C=======================================================================
 !-----------------------------------------------------------------------
       CALL PT_IPPHEN(
      &    FILEIO, 
-     &    CROP, IEMRG, P2, PLANTS, SDEPTH, SPRLAP, TC, TCPLUS)
+     &    CROP, IEMRG, P2, PLANTS, SDEPTH, SPRLAP, TC, TCPLUS,
+     &    TMLAI)
+
+      CALL PT_IPTHTIME(FILEIO,                            !Input
+     &    VGCT, SGCT,                                     !Output
+     &    VTBA, VTO1, VTO2, VTMA, STBA, STO1, STO2, STMA) !Output
 
       ISTAGE = 5
       XSTAGE = 0.0
@@ -70,6 +79,7 @@ C=======================================================================
       XPLANT     = PLANTS
 
 !     From main program CHP 08/27/01
+      !HBD: de-hardwire (species?) - not sure what is the meaning
       SPGROF = (.167*(1.0-.82*EXP(-.065*SPRLAP)))/.0344
 !      S1     = SIN (XLAT*0.01745)
 !      C1     = COS (XLAT*0.01745)
@@ -99,14 +109,17 @@ C=======================================================================
       TOTNUP = APTNUP
 
       IF (ISTAGE .NE. 5) THEN
-         CALL PT_THTIME (  
-     &      ISTAGE, L0, ST, TMAX, TMIN,                   !Input
-     &      DTT, STT)                                     !Output
+         CALL PT_THTIME (
+     &      ISTAGE, L0, ST, TMAX, TMIN,                     !Input
+     &      VGCT, SGCT,                                     !Input
+     &      VTBA, VTO1, VTO2, VTMA, STBA, STO1, STO2, STMA, !Input
+     &      DTT, STT)                                       !Output
 
          CUMDTT = CUMDTT + DTT            ! Update thermal time
          CUMSTT = CUMSTT + STT
       END IF
 
+      !HBD: de-hardwire (species) - check meaning in model description
       IF (ISTAGE .LT. 3) THEN             ! Relative temp. factor
           TEMP = TMIN*0.75 + TMAX*0.25    ! post-emergent for
           IF (TEMP .LE. 4.0) THEN         ! tuber inititation
@@ -118,6 +131,7 @@ C=======================================================================
               RTF = 1.0                           
 
 !          Externalize TCPlus variable (was hardwired to 8.0)
+           !HBD: de-hardwire (species) - check meaning in people who changed the code
            ELSEIF (TEMP .GT. TC .AND. TEMP .LE. TC+8.0) THEN
 !           ELSEIF (TEMP .GT. TC .AND. TEMP .LE. TC+TCPLUS) THEN
 !             Use linear function between TC and TCPLUS
@@ -202,6 +216,7 @@ C-----------------------------------------------------------------------
           !
           ! Seedling Emergence Date
           !
+          !HBD: de-hardwire (species) - check meaning in model description
           NDAS = NDAS + 1
           IF (SPRLAP .EQ. 0.0) THEN
              GROSPR = 28.4*STT           ! Sadler (1961), cited in
@@ -301,9 +316,12 @@ C-----------------------------------------------------------------------
           GNUP   = GRAINN*PLTPOP*10.0
 
 !         modified by modified by RR 02/15/2016
+          !HBD: de-hardwire (eco or cultivar?) - check why this was changed!
 !         IF (XLAI .LT. 0.1*MAXLAI .OR. YRDOY .EQ. MDATE) THEN !Original function
-          IF (XLAI .LT. 0.01*MAXLAI .OR. YRDOY .EQ. MDATE) THEN 
+!          IF (XLAI .LT. 0.01*MAXLAI .OR. YRDOY .EQ. MDATE) THEN 
+          IF (XLAI .LT. TMLAI*MAXLAI .OR. YRDOY .EQ. MDATE) THEN !HBD (Jan 2025)
              STGDOY(ISTAGE) = YRDOY
+             MDATE = YRDOY
              CALL PT_PHASEI (
      &         ISTAGE, CUMDTT, XPLANT, SPRLAP,            !I/O
      &         CTII, CUMSTT, MAXLAI, SENLA, TSPRWT, XDTT) !Output
@@ -340,7 +358,8 @@ C=======================================================================
 
       SUBROUTINE PT_IPPHEN(
      &    FILEIO, 
-     &    CROP, IEMRG, P2, PLANTS, SDEPTH, SPRLAP, TC, TCPLUS)
+     &    CROP, IEMRG, P2, PLANTS, SDEPTH, SPRLAP, TC, TCPLUS,
+     &    TMLAI)
 
 C-----------------------------------------------------------------------
       IMPLICIT NONE
@@ -357,6 +376,7 @@ C-----------------------------------------------------------------------
       INTEGER ERR, FOUND, LINC, LNUM, IEMRG
 
       REAL P2, PLANTS, SDEPTH, SPRLAP, TC, TCPLUS
+      REAL TMLAI
 
 !-----------------------------------------------------------------------
 !     Read data from FILEIO for use in phenology module
@@ -393,7 +413,7 @@ C     Read crop genetic information
         CALL ERROR(SECTION, 42, FILEIO, LNUM)
       ELSE
         IF (INDEX ('PT',CROP) .GT. 0) THEN
-          READ (LUNIO,'(49X,3F6.0)', IOSTAT=ERR) P2, TC, TCPLUS
+          READ (LUNIO,'(49X,2F6.0,6X,1F6.0)', IOSTAT=ERR) P2, TC, TMLAI!, TCPLUS
           LNUM = LNUM + 1
           IF (ERR .NE. 0) CALL ERROR(ERRKEY,ERR,FILEIO,LNUM)
         ENDIF
