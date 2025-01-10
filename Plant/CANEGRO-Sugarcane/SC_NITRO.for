@@ -51,7 +51,7 @@ c     Use the composite variable defn:
 c     All variables to be declared:
       IMPLICIT NONE
 c     and saved between subroutine calls:
-      EXTERNAL SC_OPNIT
+      EXTERNAL SC_OPNIT, GET_SPECIES_COEFF
 
       SAVE
 
@@ -300,6 +300,34 @@ c      New uptake approach variables
 !      REAL SAT(NL)
 !      REAL WR(NL)
 
+! HBD June 2024: new species N-related coefficients
+!     Error variable for species coefficient read
+      LOGICAL SPC_ERROR
+
+      REAL NINI_TOPS
+      REAL NMIN_TOPS
+      REAL NINI_STALKS
+      REAL NMIN_STALKS
+      REAL NINI_ROOTS
+      REAL NMIN_ROOTS
+      REAL NMIN_DEADLF
+      REAL NOPT_TOPS_1
+      REAL NOPT_TOPS_2
+      REAL NOPT_TOPS_3
+      REAL NOPT_TOPS_4
+      REAL NOPT_STALKS_1
+      REAL NOPT_STALKS_2
+      REAL NOPT_STALKS_3
+      REAL NOPT_STALKS_4
+      REAL NOPT_ROOTS_1
+      REAL NOPT_ROOTS_2
+      REAL NOPT_ROOTS_3
+      REAL NOPT_ROOTS_4
+      REAL NCRI_TOPS_1
+      REAL NCRI_TOPS_2
+      REAL NCRI_TOPS_3
+      REAL NCRI_TOPS_4
+
 c     ---------------------------------------------------------------
 c                         CODE
 c     ---------------------------------------------------------------
@@ -312,10 +340,14 @@ c     ===============================================================
 c     INITIALISE
 c     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+
           
-		ACC_UPTAKE = 0.0
+          
+          
+	   ACC_UPTAKE = 0.0
         ABVGRND_N_MASS = 0.0
         ROOTNCONC = 0.01
+       
         
 c         ------------  TOPS  ---------------------------------   
                                                                   
@@ -362,6 +394,44 @@ c         ----------------------------------------------------
       ELSE IF (DYNAMIC .EQ. SEASINIT) THEN
 
           N_STRESS = 1
+
+          CALL GET_SPECIES_COEFF(NINI_TOPS, 'NINI_TOPS', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NMIN_TOPS, 'NMIN_TOPS', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NINI_STALKS, 'NINI_STALKS', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NMIN_STALKS, 'NMIN_STALKS', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NINI_ROOTS, 'NINI_ROOTS', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NMIN_ROOTS, 'NMIN_ROOTS', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NMIN_DEADLF, 'NMIN_DEADLF', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NOPT_TOPS_1, 'NOPT_TOPS_1', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NOPT_TOPS_2, 'NOPT_TOPS_2', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NOPT_TOPS_3, 'NOPT_TOPS_3', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NOPT_TOPS_4, 'NOPT_TOPS_4', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NOPT_STALKS_1, 'NOPT_STALKS_1', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NOPT_STALKS_2, 'NOPT_STALKS_2', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NOPT_STALKS_3, 'NOPT_STALKS_3', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NOPT_STALKS_4, 'NOPT_STALKS_4', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NOPT_ROOTS_1, 'NOPT_ROOTS_1', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NOPT_ROOTS_2, 'NOPT_ROOTS_2', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NOPT_ROOTS_3, 'NOPT_ROOTS_3', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NOPT_ROOTS_4, 'NOPT_ROOTS_4', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NCRI_TOPS_1, 'NCRI_TOPS_1', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NCRI_TOPS_2, 'NCRI_TOPS_2', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NCRI_TOPS_3, 'NCRI_TOPS_3', CONTROL, SPC_ERROR)
+          CALL GET_SPECIES_COEFF(NCRI_TOPS_4, 'NCRI_TOPS_4', CONTROL, SPC_ERROR)
+
+          ! HBD needed again!       (?)
+c         ------------  TOPS  ---------------------------------   
+          N_PARAMS(TOPS)%MIN_CONC = NMIN_TOPS ! 0.004        
+          N_PARAMS(TOPS)%INIT_CONC = NINI_TOPS! 0.03                           
+c         ------------  STALKS  -------------------------------
+          N_PARAMS(STALKS)%MIN_CONC = NMIN_STALKS ! 0.003
+          N_PARAMS(STALKS)%INIT_CONC = NINI_STALKS ! 0.03                         
+c         ------------  ROOTS  -------------------------------
+          N_PARAMS(ROOTS)%MIN_CONC = NMIN_ROOTS ! 0.003
+          N_PARAMS(ROOTS)%INIT_CONC = NINI_ROOTS ! 0.012                          
+c         ------------  TRASH  -------------------------------
+          N_PARAMS(DEADLF)%MIN_CONC = NMIN_DEADLF ! 0.004                         
+c         ----------------------------------------------------
 
 c         For all components:
           DO I=1,NUM_COMPS 
@@ -500,38 +570,38 @@ c TODO: are these phases the same between v4.5 and v4.8? (HBD?)
 
 c      ************************N DEMAND*******************
         IF (CaneCrop%GROPHASE.EQ.1) THEN  !Emerging
-        N_PARAMS(TOPS)%CRIT_CONC = 0.016
-        N_PARAMS(TOPS)%OPT_CONC = 0.018
+        N_PARAMS(TOPS)%CRIT_CONC = NCRI_TOPS_1 ! 0.016
+        N_PARAMS(TOPS)%OPT_CONC = NOPT_TOPS_1 ! 0.018
         
         !N_PARAMS(STALKS)%CRIT_CONC = 0.005  
-        N_PARAMS(STALKS)%OPT_CONC = 0.005
+        N_PARAMS(STALKS)%OPT_CONC = NOPT_STALKS_1 ! 0.005
         
         !N_PARAMS(ROOTS)%CRIT_CONC = 0.005
-        N_PARAMS(ROOTS)%OPT_CONC = 0.005
+        N_PARAMS(ROOTS)%OPT_CONC = NOPT_ROOTS_1 ! 0.005
         
         ELSEIF (CaneCrop%GROPHASE.EQ.2) THEN  !Tillering
-        N_PARAMS(TOPS)%CRIT_CONC = 0.011
-        N_PARAMS(TOPS)%OPT_CONC = 0.013
+        N_PARAMS(TOPS)%CRIT_CONC = NCRI_TOPS_2 ! 0.011
+        N_PARAMS(TOPS)%OPT_CONC = NOPT_TOPS_2 ! 0.013
         
-        N_PARAMS(STALKS)%OPT_CONC = 0.003
+        N_PARAMS(STALKS)%OPT_CONC = NOPT_STALKS_2 ! 0.003
         
-        N_PARAMS(ROOTS)%OPT_CONC = 0.005
+        N_PARAMS(ROOTS)%OPT_CONC = NOPT_ROOTS_2 ! 0.005
         
         ELSEIF (CaneCrop%GROPHASE.EQ.3) THEN   !Stalk emergence
-        N_PARAMS(TOPS)%CRIT_CONC = 0.009
-        N_PARAMS(TOPS)%OPT_CONC = 0.01
+        N_PARAMS(TOPS)%CRIT_CONC = NCRI_TOPS_3 ! 0.009
+        N_PARAMS(TOPS)%OPT_CONC = NOPT_TOPS_3 ! 0.01
         
-        N_PARAMS(STALKS)%OPT_CONC = 0.003
+        N_PARAMS(STALKS)%OPT_CONC = NOPT_STALKS_3 ! 0.003
         
-        N_PARAMS(ROOTS)%OPT_CONC = 0.003
+        N_PARAMS(ROOTS)%OPT_CONC = NOPT_ROOTS_3 ! 0.003
         
         ELSEIF (CaneCrop%GROPHASE.EQ.4) THEN  !Peak stalk population
-        N_PARAMS(TOPS)%CRIT_CONC = 0.007
-        N_PARAMS(TOPS)%OPT_CONC = 0.008
+        N_PARAMS(TOPS)%CRIT_CONC = NCRI_TOPS_4 ! 0.007
+        N_PARAMS(TOPS)%OPT_CONC = NOPT_TOPS_4 ! 0.008
         
-        N_PARAMS(STALKS)%OPT_CONC = 0.002
+        N_PARAMS(STALKS)%OPT_CONC = NOPT_STALKS_4 ! 0.002
         
-        N_PARAMS(ROOTS)%OPT_CONC = 0.002
+        N_PARAMS(ROOTS)%OPT_CONC = NOPT_ROOTS_4 ! 0.002
         ENDIF
         
         IF (MASSES(TOPS).GT.0) THEN

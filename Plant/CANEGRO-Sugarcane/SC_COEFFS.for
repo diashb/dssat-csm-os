@@ -818,14 +818,16 @@ c     Local variables:
 c     ::::::::::::::::
 
 c         Array of coefficient names:
-          CHARACTER*20 CF_NAMES(50), CF_NAME_XX, TMP_STR
+          CHARACTER*20 CF_NAMES(120), CF_NAME_XX, TMP_STR
 
 c         Array of coefficient values:
-          REAL CF_VALUES(50)
+          REAL CF_VALUES(120)
 
 c         Array of logical values indicating whether or not a value
 c         was actually read from file:
-          LOGICAL CF_OK(50)
+          LOGICAL CF_OK(120)
+
+          ! NOTE: HBD June 2024 changed from 50 to 120 in the above 3 arrays
 
 c         The name of the species file
           CHARACTER*256 FILENAME
@@ -1047,7 +1049,7 @@ c             Write COEFF_NAME to a 20-element string:
               WRITE(CF_NAME_XX, '(A20)') COEFF_NAME
               
 
-              DO I=1,50
+              DO I=1,70 ! HBD 50 to 70 (max=120)
 c                 Compare strings
 c                 WRITE(*, '(1H#,A,1H#)') 'Array:'//CF_NAMES(I)
 c                 WRITE(*, '(1H#,A,1H#)') 'Coeff:'//CF_NAME_XX
