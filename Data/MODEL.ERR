@@ -607,6 +607,9 @@ Soil input section not found.  Please correct file.
 IPSOIL   29
 File not found.  Please check soil profile name or create file.
 
+IPSOIL   98
+Tab detected in the soil profile. Please correct input file.
+
 IPTILL    2
 Tillage input level not found. Please correct input file.
 
@@ -697,6 +700,9 @@ File not found.  Please check file name or create file.
 IPWTH    30
 Error opening file.
 
+IPWTH    98
+Tab detected in the weather file. Please correct input file.
+
 IPASCE    1
 Error reading species parameters for evapotranspiration.
 
@@ -705,6 +711,12 @@ Incompatibility between Century SOM method and flooded field management.
 
 LAND      2
 Planting date is defined prior to the start of simulation date.
+
+LTGROW   10
+Percent Lint (PCTLT) missing in the Ecotype file. Please correct file. 
+
+LTGROW   11
+Percent Lint (PCTLT) out of range. Range is from 25 to 60. Please correct file.
 
 MODELN    1
 Error opening file. Please check file.
