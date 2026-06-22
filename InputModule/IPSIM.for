@@ -14,10 +14,11 @@ C  02/21/2006 GH  Removed crop model selection
 !  02/11/2010 CHP Added checks for P model linked with crop models.
 !  05/07/2020 FO  Added new Y4K subroutine call to convert YRDOY
 !  05/07/2020 FO  Added check for SimLevel to set YRSIM using YRPLT
-!  93/22/2022 GH Fix forecast issue
+!  93/22/2022 GH  Fix forecast issue
 !  07/30/2023 FO  Initialized ATMOW and ATTP.
 !  02/07/2025 CHP Move all codes checking after the call to External_SimControls
 !                 so that we can do this once in the code instead of twice.
+!  06/22/2026 HBD Actived phosphorus for sweet corn (CERES)
 C-----------------------------------------------------------------------
 C  INPUT  : LUNEXP,FILEX,LNSIM
 C
@@ -621,7 +622,7 @@ C-----------------------------------------------------------------------
      &           'VB','CP','CB','FB','GB','LT','AL',
      &           'CV','BG')
 !       Do nothing -- these crops fix N and can have Y or N
-           CASE DEFAULT; ISWSYM ='N' !other crops don't have a choice
+           CASE DEFAULT; ISWSYM ='N' !other crops do not have a choice
       END SELECT
 
       IF (ISWCHE .EQ. ' ') THEN
@@ -901,11 +902,11 @@ C  FO - 05/07/2020 Add new Y4K subroutine call to convert YRDOY
 ! chp 2019-08-19 remove rice from P model list
 ! RICER047.SPE file does not have P section.
 !       CASE('CRGRO','MZCER','RICER','SGCER')
-        CASE('CRGRO','MZCER','SGCER')
+        CASE('CRGRO','MZCER','SGCER','SWCER')
           SELECT CASE(CONTROL % CROP)
 !         CASE('SB','FA','MZ','RI','PN','SG') 
 !         CASE('SB','FA','MZ','PN','SG') 
-          CASE('SB','FA','MZ','PN','SG','TM','GB') 
+          CASE('SB','FA','MZ','PN','SG','TM','GB','SW') 
 !           Phosphorus model has been enabled and tested for these crops, do nothing
 
           CASE DEFAULT
