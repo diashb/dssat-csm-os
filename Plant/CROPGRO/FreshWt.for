@@ -21,7 +21,7 @@
       SUBROUTINE FRESHWT(DYNAMIC, ISWFWT,                
      &        YRPLT, XMAGE, NR2TIM, PHTIM,                      !Input 
      &        WTSD,SDNO,WTSHE,SHELN,                            !Input 
-     &        HPODWT,HSDWT,HSHELWT)                             !Output
+     &        HPODWT,HSDWT,HSHELWT, TOFPW)                             !Output
 
 !-----------------------------------------------------------------------
       USE ModuleDefs 
@@ -298,8 +298,9 @@
             CASE ('CU')       ! Cucumber
               DMC(NPP) = (5. + 7.2 * EXP(-7.5 * PAGE / 40.)) / 100.
             CASE ('GB')       ! Snap bean
-    !         DMC(NPP) = 0.0465 + 0.0116 * EXP(0.161 * PAGE)
+    !         DMC(NPP) = 0.0465 + 0.0116 * EXP(0.161 * PAGE) ! Dijonou's thesis. HBD Why changed?
               DMC(NPP) = 0.023 + 0.0277 * EXP(0.116 * PAGE)  
+              DMC(NPP) = MIN(DMC(NPP), 0.85) 
             CASE ('PR')       ! Bell pepper
               !DMC(NPP) = (5. + 7.2 * EXP(-7.5 * PAGE / 40.)) / 100.
               ! HBD from data of Wurbs et al. (2012) and Marcelis & Baan Hofman-Eijer (1995)
@@ -339,10 +340,10 @@
 !           Sieve size 2
               CLASS(2) = CLASS(2) + (WTSD(NPP) + WTSHE(NPP)) / DMC(NPP)
             ELSEIF (PodDiam .LT. 8.3344) THEN
-!           Sieve size 3
+!           Sieve size 3 (appropriate for fresh market)
               CLASS(3) = CLASS(3) + (WTSD(NPP) + WTSHE(NPP)) / DMC(NPP)
             ELSEIF (PodDiam .LT. 9.5250) THEN
-!           Sieve size 4
+!           Sieve size 4 (appropriate for fresh market)
               CLASS(4) = CLASS(4) + (WTSD(NPP) + WTSHE(NPP)) / DMC(NPP)
             ELSEIF (PodDiam .LT. 10.7156) THEN
 !           Sieve size 5

@@ -40,7 +40,7 @@
      &    PODNO, POTCAR, POTLIP, SDNO, SDVAR, SEEDNO,     !Output
      &    SHELN, SHVAR, WSDDTN, WSHDTN, WTABRT, WTSD,     !Output
      &    WTSHE, WTSHMT, FLWN,                            !Output 
-     &    TOSHMINE,TOCHMINE,HPODWT,HSDWT,HSHELWT)         !Output
+     &    TOSHMINE,TOCHMINE,HPODWT,HSDWT,HSHELWT,TOFPW)         !Output
 
 !-----------------------------------------------------------------------
       USE ModuleDefs
@@ -80,7 +80,7 @@
       REAL PROLFF, FNINL, SEEDNO, PODNO, XMPAGE
       REAL WTPSD, SFDUR, PROSHF, XMAGE
       REAL TOSHMINE,TOCHMINE
-      REAL HPODWT,HSDWT,HSHELWT
+      REAL HPODWT,HSDWT,HSHELWT, TOFPW
 
       REAL NAVPOD, ADDSHL, FLWADD
       REAL PGLEFT, PODMAT, AFLW, FLWRDY, PODADD, SHMINE, ACCAGE, PGAVLR
@@ -237,7 +237,7 @@
       CALL FRESHWT(DYNAMIC, ISWFWT,                
      &        YRPLT, XMAGE, NR2TIM, PHTIM,                      !Input 
      &        WTSD,SDNO,WTSHE,SHELN,                            !Input 
-     &        HPODWT,HSDWT,HSHELWT)                             !Output
+     &        HPODWT,HSDWT,HSHELWT,TOFPW)                             !Output
 
 !-----------------------------------------------------------------------
 !    Read Ecotype Parameter File
@@ -337,7 +337,7 @@
       CALL FRESHWT(DYNAMIC, ISWFWT,                
      &        YRPLT, XMAGE, NR2TIM, PHTIM,                      !Input 
      &        WTSD,SDNO,WTSHE,SHELN,                            !Input 
-     &        HPODWT,HSDWT,HSHELWT)                             !Output
+     &        HPODWT,HSDWT,HSHELWT,TOFPW)                             !Output
 
 !***********************************************************************
 !***********************************************************************
@@ -818,7 +818,7 @@ C-GH          IF (SHELN(NPP) .GE. 0.001 .AND. GRRAT1 .GE. 0.001) THEN
           CALL FRESHWT(DYNAMIC, ISWFWT,                
      &        YRPLT, XMAGE, NR2TIM, PHTIM,                      !Input 
      &        WTSD,SDNO,WTSHE,SHELN,                            !Input 
-     &        HPODWT,HSDWT,HSHELWT)                             !Output
+     &        HPODWT,HSDWT,HSHELWT,TOFPW)                             !Output
      
         ENDIF
 
@@ -847,7 +847,7 @@ C-GH          IF (SHELN(NPP) .GE. 0.001 .AND. GRRAT1 .GE. 0.001) THEN
           CALL FRESHWT(DYNAMIC, ISWFWT,                
      &        YRPLT, XMAGE, NR2TIM, PHTIM,                      !Input 
      &        WTSD,SDNO,WTSHE,SHELN,                            !Input 
-     &        HPODWT,HSDWT,HSHELWT)                             !Output
+     &        HPODWT,HSDWT,HSHELWT,TOFPW)                             !Output
       ENDIF
 
 !***********************************************************************

@@ -127,7 +127,7 @@ C=======================================================================
       REAL SATFAC, SWFAC, SDWTAH,
      &    SDRATE, SDWT, SDIDOT,
      &    SDVAR, SHVAR, SDGR, SDPROR, SHELWT,
-     &    SLA, SLDOT, STMWT, SWIDOT, SEEDNO, LINTW, LINTP
+     &    SLA, SLDOT, STMWT, SWIDOT, SEEDNO, LINTW, LINTP, TOFPW
       REAL SLPF
       REAL SRDOT, SLAAD, SLNDOT, SSDOT, SSNDOT
       REAL TDAY, TDUMX, TDUMX2, TGROAV, TMIN, TURFAC, TAVG, TURADD,
@@ -333,7 +333,7 @@ C-----------------------------------------------------------------------
      &    PODNO, POTCAR, POTLIP, SDNO, SDVAR, SEEDNO,     !Output
      &    SHELN, SHVAR, WSDDTN, WSHDTN, WTABRT, WTSD,     !Output
      &    WTSHE, WTSHMT, FLWN,                            !Output 
-     &    TOSHMINE,TOCHMINE,HPODWT,HSDWT,HSHELWT)         !Output
+     &    TOSHMINE,TOCHMINE,HPODWT,HSDWT,HSHELWT,TOFPW)   !Output
 
 !-----------------------------------------------------------------------
         IF (DETACH .EQ. 'Y') THEN
@@ -427,7 +427,7 @@ C-----------------------------------------------------------------------
      &    SEEDNO, STGDOY, SWFAC, TOPWT, TURFAC,           !Input
      &    VSTAGE, WTNCAN, WTNFX, WTNSD, WTNST, WTNUP,     !Input
      &    XLAI, RSTAGE, YREMRG, YRNR1, YRNR3, YRNR5,      !Input
-     &    YRNR7, YRPLT, LINTW, LINTP,                     !Input
+     &    YRNR7, YRPLT, LINTW, LINTP,TOFPW,               !Input
      &    SDWTAH)                                         !Output
 
 !     If this is not a sequenced run, don't use any previously calculated
@@ -612,7 +612,7 @@ C     Initialize pest coupling point and damage variables
      &    PODNO, POTCAR, POTLIP, SDNO, SDVAR, SEEDNO,     !Output
      &    SHELN, SHVAR, WSDDTN, WSHDTN, WTABRT, WTSD,     !Output
      &    WTSHE, WTSHMT, FLWN,                            !Output 
-     &    TOSHMINE,TOCHMINE,HPODWT,HSDWT,HSHELWT)         !Output
+     &    TOSHMINE,TOCHMINE,HPODWT,HSDWT,HSHELWT,TOFPW)   !Output
 
 !-----------------------------------------------------------------------
       CALL VEGGR (SEASINIT, 
@@ -667,7 +667,7 @@ C-----------------------------------------------------------------------
      &    SEEDNO, STGDOY, SWFAC, TOPWT, TURFAC,           !Input
      &    VSTAGE, WTNCAN, WTNFX, WTNSD, WTNST, WTNUP,     !Input
      &    XLAI, RSTAGE, YREMRG, YRNR1, YRNR3, YRNR5,      !Input
-     &    YRNR7, YRPLT, LINTW, LINTP,                     !Input
+     &    YRNR7, YRPLT, LINTW, LINTP,TOFPW,               !Input
      &    SDWTAH)                                         !Output
 
 ! Zero the value of HARVRES composite variable here 
@@ -837,7 +837,7 @@ C-----------------------------------------------------------------------
      &    PODNO, POTCAR, POTLIP, SDNO, SDVAR, SEEDNO,     !Output
      &    SHELN, SHVAR, WSDDTN, WSHDTN, WTABRT, WTSD,     !Output
      &    WTSHE, WTSHMT, FLWN,                            !Output 
-     &    TOSHMINE,TOCHMINE,HPODWT,HSDWT,HSHELWT)         !Output
+     &    TOSHMINE,TOCHMINE,HPODWT,HSDWT,HSHELWT,TOFPW)   !Output
 
 !-----------------------------------------------------------------------
         CALL VEGGR(EMERG, 
@@ -1106,7 +1106,7 @@ C-----------------------------------------------------------------------
      &    PODNO, POTCAR, POTLIP, SDNO, SDVAR, SEEDNO,     !Output
      &    SHELN, SHVAR, WSDDTN, WSHDTN, WTABRT, WTSD,     !Output
      &    WTSHE, WTSHMT, FLWN,                            !Output 
-     &    TOSHMINE,TOCHMINE,HPODWT,HSDWT,HSHELWT)         !Output
+     &    TOSHMINE,TOCHMINE,HPODWT,HSDWT,HSHELWT,TOFPW)   !Output
 
 C-----------------------------------------------------------------------
 C     Call specific routines for peanut to determine
@@ -1305,7 +1305,7 @@ C-----------------------------------------------------------------------
      &    PODNO, POTCAR, POTLIP, SDNO, SDVAR, SEEDNO,     !Output
      &    SHELN, SHVAR, WSDDTN, WSHDTN, WTABRT, WTSD,     !Output
      &    WTSHE, WTSHMT, FLWN,                            !Output 
-     &    TOSHMINE,TOCHMINE,HPODWT,HSDWT,HSHELWT)         !Output
+     &    TOSHMINE,TOCHMINE,HPODWT,HSDWT,HSHELWT,TOFPW)   !Output
 
         CALL OPGROW(CONTROL, ISWITCH, SoilProp, 
      &    CADLF, CADST, CANHT, CANWH, CMINEA, DWNOD, GROWTH,  
@@ -1339,7 +1339,7 @@ C-----------------------------------------------------------------------
      &    SEEDNO, STGDOY, SWFAC, TOPWT, TURFAC,           !Input
      &    VSTAGE, WTNCAN, WTNFX, WTNSD, WTNST, WTNUP,     !Input
      &    XLAI, RSTAGE, YREMRG, YRNR1, YRNR3, YRNR5,      !Input
-     &    YRNR7, YRPLT, LINTW, LINTP,                     !Input
+     &    YRNR7, YRPLT, LINTW, LINTP,TOFPW,               !Input
      &    SDWTAH)                                         !Output
 
 !     Call PlantNBal only for seasonal output.

@@ -35,7 +35,7 @@ C=======================================================================
      &    SEEDNO, STGDOY, SWFAC, TOPWT, TURFAC,           !Input
      &    VSTAGE, WTNCAN, WTNFX, WTNSD, WTNST, WTNUP,     !Input
      &    XLAI, RSTAGE, YREMRG, YRNR1, YRNR3, YRNR5,      !Input
-     &    YRNR7, YRPLT, LINTW, LINTP,                     !Input
+     &    YRNR7, YRPLT, LINTW, LINTP,TOFPW,               !Input
      &    SDWTAH)                                         !Output
 
 C-----------------------------------------------------------------------
@@ -69,6 +69,7 @@ C-----------------------------------------------------------------------
       REAL BIOMAS, BWAH, CANHT, CANNAA, CANWAA, HI, HWAH, HWAM
       REAL LAIMX, PCLSD, PCNSD, PODWT, PODNO, PSDWT, PSPP
       REAL SDRATE, SDWT, SDWTAH, SEEDNO, EYLDH, ROUND, LINTW, LINTP
+      REAL TOFPW
       REAL THRES, TOPWT, VSTAGE
       REAL WTNCAN, WTNFX, WTNSD, WTNST, WTNUP, XLAI
       REAL, DIMENSION(2) :: HARVFRAC
@@ -355,6 +356,12 @@ C-----------------------------------------------------------------------
       IF(CROP .EQ. 'CO') THEN
         ! Units from g/m2 to ton/ha
         EYLDH = LINTW / 100
+      ENDIF
+
+      ! 2025-12-11 HBD - Economic Yield for Tomato & Bell Pepper (total, not marketable yet).
+      IF ((CROP .EQ. 'TM') .OR. (CROP .EQ. 'PR')) THEN
+        ! Unit: kg/ha
+        EYLDH = TOFPW * 10
       ENDIF
       
       ! 2024-07-11 FO - Economic standard output format
