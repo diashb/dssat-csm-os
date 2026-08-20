@@ -1,5 +1,5 @@
 C=======================================================================
-C COPYRIGHT 1998-2025
+C COPYRIGHT 1998-2026
 C                     DSSAT Foundation
 C                     University of Florida, Gainesville, Florida
 C                     International Fertilizer Development Center
@@ -29,10 +29,11 @@ C-----------------------------------------------------------------------
       USE ModuleDefs      
       USE FloodModule      
       USE CsvOutput   ! VSH 
+      USE SumModule
 
       IMPLICIT NONE
       EXTERNAL INFO, ERROR, WARNING, IPIBS, WEATHR, SOIL, SPAM, PLANT, 
-     &  OPSUM, MGMTOPS
+     &  MGMTOPS
       SAVE
 C-----------------------------------------------------------------------
 C     Crop, Experiment, Command line Variables

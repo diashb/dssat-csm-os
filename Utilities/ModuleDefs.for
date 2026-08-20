@@ -56,7 +56,8 @@ C             CHP Added TRTNUM to CONTROL variable.
      &    NumOfStalks = 42, !Maximum stalks per sugarcane stubble (FSR)
      &    EvaluateNum = 40, !Number of evaluation variables
      &    MaxFiles = 500,   !Maximum number of output files
-     &    MaxPest = 500    !Maximum number of pest operations
+     &    MaxPest = 500,    !Maximum number of pest operations
+     &    MaxStag = 5       !max # of stages output
 
       REAL, PARAMETER :: 
      &    PI = 3.14159265,
@@ -537,7 +538,7 @@ C             CHP Added TRTNUM to CONTROL variable.
 
 !======================================================================
 !     GET and PUT routines are differentiated by argument type.  All of 
-!       these procedures can be accessed with a CALL GET(...)
+!       these procedures can be accessed with a CALL GET(...) or CALL PUT(...)
       INTERFACE GET
          MODULE PROCEDURE GET_Control
      &                  , GET_ISWITCH 

@@ -1,5 +1,5 @@
 C=======================================================================
-C  COPYRIGHT 1998-2020 DSSAT Foundation
+C  COPYRIGHT 1998-2025 DSSAT Foundation
 C                      University of Florida, Gainesville, Florida
 C                      Inernational Fertilizer Development Center
 C  
@@ -28,7 +28,8 @@ C  08/12/2003 CHP Added I/O error checking
 !  02/11/2009 CHP Do not run SoilDyn when ISWWAT = 'N'
 !                 Changed condition for missing or zero OC.
 !  01/24/2023 chp added SAEA to soil analysis in FileX for methane
-!  08/30/2024  FO Added WARNING message if LL > DUL > SAT.
+!  08/30/2024 FO  Added WARNING message if LL > DUL > SAT.
+!  08/01/2025 GH  Add additional information for SLPF
 C-----------------------------------------------------------------------
 C  Called : Main
 C  Calls  : 
@@ -442,8 +443,11 @@ C-----------------------------------------------------------------------
       IF (SLPF < 1.E-4) THEN
         SLPF = 1.0
       ELSEIF (SLPF < 0.9999) THEN
-        WRITE(MSG(1),'("Soil photosynthesis factor (SLPF) =",F5.2)')SLPF
-        CALL WARNING(1,ERRKEY,MSG)
+        WRITE(MSG(1),'("Soil photosynthesis factor (SLPF) is",F5.2)')
+     &                SLPF
+        WRITE(MSG(2),'("This will reduce your potential biomass by",
+     &                F5.2)')SLPF
+        CALL WARNING(2,ERRKEY,MSG)
       ENDIF
 
 C     Initialize curve number (according to J.T. Ritchie) 1-JUL-97 BDB
@@ -1804,7 +1808,8 @@ c** wdb orig          SUMKEL = SUMKE * EXP(-0.15*MCUMDEP)
       IF (DYNAMIC .EQ. SEASINIT) THEN
 !-----------------------------------------------------------------------
       IF (INDEX('AD',ISWITCH % IDETL) > 0 .AND. ISWITCH % IDETW == 'Y' 
-     &   .AND.  INDEX('YR',ISWITCH % ISWTIL) > 0) THEN
+!    &   .AND.  INDEX('YR',ISWITCH % ISWTIL) > 0) THEN
+     &    ) THEN
         PrintDyn = .TRUE. 
         CALL GETLUN('OUTSOL',DLUN)
 !       Temporary output file for debugging:
@@ -1821,7 +1826,7 @@ c** wdb orig          SUMKEL = SUMKE * EXP(-0.15*MCUMDEP)
        IF (INDEX('FQ',CONTROL%RNMODE) > 0 .AND. CONTROL%RUN /= 1)RETURN
         CALL HEADER(SEASINIT, DLUN, CONTROL % RUN)
         WRITE(DLUN,"(/,
-     &     '@YEAR DOY   DAS   CRAIN  SOLCOV   SUMKE    ROCN   TOTAW',
+     &  '@YEAR DOY   DAS   CRAIN  SOLCOV   SUMKE    ROCN   TOTAW',
      &  '  KECHG1  KECHG2  KECHG3  KECHG4',
      &  '  DLAYR1  DLAYR2  DLAYR3  DLAYR4',
      &  '     BD1     BD2     BD3     BD4',
@@ -1829,7 +1834,8 @@ c** wdb orig          SUMKEL = SUMKE * EXP(-0.15*MCUMDEP)
      &  '   SWCN1   SWCN2   SWCN3   SWCN4',
      &  '    SAT1    SAT2    SAT3    SAT4',
      &  '    DUL1    DUL2    DUL3    DUL4',
-     &  '     LL1     LL2     LL3     LL4')")
+     &  '     LL1     LL2     LL3     LL4',
+     &  '    DML1    DML2    DML3    DML4')")
       ELSE
         PrintDyn = .FALSE.
       ENDIF
@@ -1847,7 +1853,7 @@ c** wdb orig          SUMKEL = SUMKE * EXP(-0.15*MCUMDEP)
         CALL YR_DOY(CONTROL % YRDOY, YEAR, DOY) 
         WRITE(DLUN,'(1X,I4,1X,I3.3,1X,I5,
      &    F8.1,2F8.3,F8.1,F8.2,
-     &    4F8.3,4F8.2,8F8.3,4F8.3,4F8.2,8F8.5)') 
+     &    4F8.3,4F8.2,8F8.3,4F8.3,4F8.2,12F8.5)') 
      &    YEAR, DOY, CONTROL % DAS, CRAIN, SOILCOV, SUMKE, CN, TOTAW, 
      &    KECHGE(1),KECHGE(2),KECHGE(3),KECHGE(4),
      &    DLAYR (1), DLAYR(2), DLAYR(3), DLAYR(4),
@@ -1856,7 +1862,8 @@ c** wdb orig          SUMKEL = SUMKE * EXP(-0.15*MCUMDEP)
      &    SWCN  (1),  SWCN(2),  SWCN(3),  SWCN(4),
      &    SAT   (1),   SAT(2),   SAT(3),   SAT(4),
      &    DUL   (1),   DUL(2),   DUL(3),   DUL(4),
-     &    LL    (1),    LL(2),    LL(3),    LL(4)
+     &    LL    (1),    LL(2),    LL(3),    LL(4),
+     &    DUL(1)-LL(1), DUL(2)-LL(2), DUL(3)-LL(3), DUL(4)-LL(4)
         Print_today =  .FALSE.
       ENDIF
 

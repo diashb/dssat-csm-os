@@ -99,6 +99,11 @@ Character(:), allocatable, Target :: vCsvlineEvOpsum
 Character (:), Pointer :: vpCsvlineEvOpsum
 Integer :: vlngthEvOpsum
 !------------------------------------------------------------------------------
+! for EnvSum.csv
+Character(:), allocatable, Target :: vCsvlineEnvSum
+Character (:), Pointer :: vpCsvlineEnvSum
+Integer :: vlngthEnvSum
+!------------------------------------------------------------------------------
 ! for summary.out 
 Character(:), allocatable, Target :: vCsvlineSumOpsum
 Character (:), Pointer :: vpCsvlineSumOpsum
@@ -1414,8 +1419,9 @@ Subroutine CsvOutSumOpsum(RUN, TRTNUM, ROTNO, ROTOPT, REPNO, CROP, MODEL, &
    cHWAHF1 = NINT(HWAHF)
    cFBWAH1 = NINT(FBWAH)
    TITLET1 = Trim(AdjustL(CommaDash(TITLET)))
-           
-   Write(tmp,'(1500(g0,","),g0)') RUN, TRTNUM, ROTNO, ROTOPT, REPNO, CROP, MODEL, &
+
+   !TF Editted to avoid having an extra comma at the end of the line
+   Write(tmp,'(98(g0,","),g0)') RUN, TRTNUM, ROTNO, ROTOPT, REPNO, CROP, MODEL, &
    EXNAME, TITLET1, FLDNAM, WSTAT, WYEAR, SLNO, LATI, LONG, ELEV, &
    YRSIM, YRPLT, EDAT, ADAT, MDAT, YRDOY, HYEAR, DWAP, &
    !CWAM, HWAM, cHWAH1, cBWAH1, PWAM, HWUM, HNUMAM, HNUMUM, HIAM, LAIX, IRNUM, &
@@ -1434,6 +1440,53 @@ Subroutine CsvOutSumOpsum(RUN, TRTNUM, ROTNO, ROTOPT, REPNO, CROP, MODEL, &
    pCsvline => Csvline
    Return
 end Subroutine CsvOutSumOpsum
+
+!------------------------------------------------------------------------------
+! Sub for EnvSum.csv
+Subroutine CsvOutEnvSum(                                        &
+     RUN, TRTNUM, ROTNO, ROTOPT, REPNO, CROP, MODEL,            &
+     MaxStag, EXNAME, YRDOY,                                    &
+     N2OEM, CO2EM, CH4EM, TCEQM,                                &
+     NDCH, CO2A, DAYLA, TMINA, TAVGA, TMAXA, SRADA,             &
+     PRCP, PETP, ETCP, ESCP, EPCP, WSGA, NSTA, PhaseName,       &
+     Csvline, pCsvline, lngth) 
+      
+!  USE SumModule
+
+!  Input vars
+   Integer, Intent(IN) :: RUN, TRTNUM, ROTNO, ROTOPT, REPNO, MaxStag, YRDOY
+   Character(Len=2), Intent(IN) :: CROP  
+   Character(Len=8), Intent(IN) :: MODEL, EXNAME
+   CHARACTER*23, DIMENSION(0:MaxStag) :: PhaseName
+   Integer, Dimension(0:MaxStag), Intent(IN) :: NDCH
+   Real, Intent (IN) :: N2OEM, CO2EM, CH4EM, TCEQM
+   Real, Dimension(0:MaxStag), Intent(IN) ::          &
+     CO2A, DAYLA, TMINA, TAVGA, TMAXA, SRADA,         &
+     PRCP, PETP, ETCP, ESCP, EPCP, WSGA, NSTA
+   
+   Character(:), allocatable, Target, Intent(Out) :: Csvline
+   Character(:), Pointer, Intent(Out) :: pCsvline
+   Integer, Intent(Out) :: lngth
+   Integer :: size, i
+   Character(Len=1300) :: tmp      
+!  End of vars
+  
+   Write(tmp,'(92(g0,","),g0)')                           &
+   RUN, TRTNUM, ROTNO, ROTOPT, REPNO, CROP, MODEL, EXNAME, YRDOY,  &
+   N2OEM, CO2EM, CH4EM, TCEQM,                              &   
+   NDCH(0), DAYLA(0), CO2A(0), TMINA(0), TAVGA(0), TMAXA(0), SRADA(0), PRCP(0), PETP(0), ETCP(0), ESCP(0), EPCP(0),  &
+   WSGA(0), NSTA(0),    &
+   (NDCH(i), TMINA(i), TAVGA(i), TMAXA(i), SRADA(i), PRCP(i), PETP(i), ETCP(i), ESCP(i), EPCP(i), WSGA(i), NSTA(i), i=1,MaxStag),   &
+   (PhaseName(i),i=0,MaxStag)
+   
+   lngth = Len(Trim(Adjustl(tmp)))
+   size = lngth
+   Allocate(Character(Len = size)::Csvline)
+   Csvline = Trim(Adjustl(tmp))
+   pCsvline => Csvline
+   Return
+end Subroutine CsvOutEnvSum
+
 !---------------------------------------------------------------------------------
 
 ! Sub for plantc.csv output Plant C CropGro
@@ -1771,6 +1824,7 @@ Subroutine CsvOutSoilPi(EXCODE, RUN, TN, ROTNUM,  REPNO, YEAR, DOY, DAS, &
    pCsvline => Csvline
    Return
 end Subroutine CsvOutSoilPi
+
 !---------------------------------------------------------------------------------
 ! Sub for csv output MLCER PlantGro.csv
 Subroutine CsvOut_mlcer(EXCODE, RUN, TN, ROTNUM,  REPNO, YEAR, DOY, DAS, DAP, &
@@ -2408,6 +2462,7 @@ Subroutine CsvOutputs(CropModel, numelem, nlayers)
          Call ListtoFileSoilNi()            ! SoilNi.csv
          call ListtoFileWth                 ! weather.csv
          Call ListtofileSumOpsum            ! summary.csv
+         Call ListtofileEnvSum               ! EnvSum.csv
          Call ListtofileSoilOrg(numelem)    ! SoilOrg.csv
          Call ListtofileETPhot              ! ETPhot.csv
          Call ListtofileMulch               ! Mulch.csv

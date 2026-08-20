@@ -14,6 +14,7 @@
 !                 Added total soil C at 0-20cm and 20-40cm depth.
 !  06/06/2006 CHP Added total soil N at 0-20cm and 20-40cm depth.
 !  10/02/2007 CHP Added C:N output file (temp?)
+!  03/11/2026 GH  Correct zero divide for SOC_40cm
 !
 !  Called: CENTURY
 !  Calls: --
@@ -28,14 +29,14 @@
      &  TSOM3C, TSOM3E, TSOMC, TSOME, TSTRUCC, TSTRUCE)   !Input
 
 !     ------------------------------------------------------------------
-      USE ModuleDefs     !Definitions of constructed variable types, 
-                         !which contain control information, soil
-                         !parameters, hourly weather data.
+      USE ModuleDefs
+      USE SumModule
+
       ! VSH
       USE CsvOutput 
       USE Linklist
       IMPLICIT  NONE
-      EXTERNAL GETLUN, HEADER, YR_DOY, SUMVALS, INCDAT
+      EXTERNAL GETLUN, HEADER, YR_DOY, INCDAT
       SAVE
 !     ------------------------------------------------------------------
 
@@ -47,7 +48,7 @@
       INTEGER NOUTDC, NOUTDN, NOUTDP 
       INTEGER RUN, YRDOY, YEAR, DOY, REPNO, RUNNO
       INTEGER, PARAMETER :: SRFC = 0, SOIL = 1
-      INTEGER NLAYR
+      INTEGER NLAYR, SUMCOUNT
 !     REAL, DIMENSION(5) :: SL, S1, S2, S3, LIT, MET, STR
       REAL, DIMENSION(5) :: TC, S1C, S2C, S3C, LIT, MET, STR
       REAL, DIMENSION(5) :: TN, S1N, S2N, S3N, LIN, MEN, STN
@@ -369,10 +370,21 @@
       SLC_20CM_P = SLC_20CM / SOIL_20CM * 100.
       SON_20CM_P = SON_20CM / SOIL_20CM * 100.
       SOP_20CM_P = SOP_20CM / SOIL_20CM * 100.
-      SOC_40CM_P = SOC_40CM / SOIL_40CM * 100.
-      SLC_40CM_P = SLC_40CM / SOIL_40CM * 100.
-      SON_40CM_P = SON_40CM / SOIL_40CM * 100.
-      SOP_40CM_P = SOP_40CM / SOIL_40CM * 100.
+            
+C-GH 03/11/2026
+C Correct for shallows soils < 20 cm
+      
+      IF (SOIL_40CM .GT. 0.0) THEN
+        SOC_40CM_P = SOC_40CM / SOIL_40CM * 100.
+        SLC_40CM_P = SLC_40CM / SOIL_40CM * 100.
+        SON_40CM_P = SON_40CM / SOIL_40CM * 100.
+        SOP_40CM_P = SOP_40CM / SOIL_40CM * 100.
+      ELSE
+        SOC_40CM_P = 0.0
+        SLC_40CM_P = 0.0
+        SON_40CM_P = 0.0
+        SOP_40CM_P = 0.0
+      ENDIF
 
       IF (FMOPT == 'A' .OR. FMOPT == ' ') THEN    ! VSH
       IF (PRINTC) THEN
@@ -524,11 +536,16 @@
 !       12/12/2005 CHP Add OCTAM and ONTAM variables
         LABEL(2)  = 'OCTAM'; VALUE(2) = SomLitC(0) + TSOMC + TLITC
         LABEL(3)  = 'OCAM '; VALUE(3) = TSOMC + TLITC 
-        LABEL(4)  = 'ONTAM'; VALUE(4) = SomLitE(0,1) +TSOME(1) +TLITE(1)
-        LABEL(5)  = 'ONAM '; VALUE(5) = TSOME(1) + TLITE(1) 
+        SUMCOUNT = 3
+
+        IF (ISWITCH % ISWNIT .EQ. 'Y') THEN
+          LABEL(4) = 'ONTAM'; VALUE(4) = SomLitE(0,1) +TSOME(1)+TLITE(1)
+          LABEL(5) = 'ONAM '; VALUE(5) = TSOME(1) + TLITE(1) 
+          SUMCOUNT = 5
+        ENDIF
 
         !Send labels and values to OPSUM
-        CALL SUMVALS (SUMNUM, LABEL, VALUE) 
+        CALL SUMVALS (SUMCOUNT, LABEL, VALUE) 
 
 !***********************************************************************
 !***********************************************************************
